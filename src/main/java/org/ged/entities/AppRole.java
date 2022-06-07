@@ -1,27 +1,29 @@
 package org.ged.entities;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 public class AppRole {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-	private Long id;
-	private String role;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(unique = true)
+    private String role;
+    @Column(columnDefinition = "boolean default false")
+    private Boolean create;
+    @Column(columnDefinition = "boolean default false")
+    private Boolean read;
+    @Column(columnDefinition = "boolean default false")
+    private Boolean update;
+    @Column(columnDefinition = "boolean default false")
+    private Boolean delete;
 }

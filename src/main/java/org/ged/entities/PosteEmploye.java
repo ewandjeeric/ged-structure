@@ -14,44 +14,34 @@ import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class PosteEmploye {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@Column(nullable = false)
-	@Temporal(TemporalType.DATE)
-	private Date dateAffectation;
+    @Column(nullable = false)
+    @Temporal(TemporalType.DATE)
+    private Date dateAffectation;
 
-	@Temporal(TemporalType.DATE)
-	private Date dateDepart;
+    @Temporal(TemporalType.DATE)
+    private Date dateDepart;
 
-	private int employeid;
 
-	@Transient
-	@JsonIncludeProperties(value = { "employeId", "employeName" })
-	private Employe employe;
+    @ManyToOne
+    @JsonIncludeProperties(value = {"employeId", "employeName", "employeSurname"})
+    private Employe employe;
 
-	@ManyToOne
-	@JsonIncludeProperties(value = { "titre", "roles" })
-	private Poste poste;
+    @ManyToOne
+    @JsonIncludeProperties(value = {"titre", "roles"})
+    private Poste poste;
 
-	public PosteEmploye(Long id, Date dateAffectation, Date dateDepart, int employeid, Poste poste) {
-		super();
-		this.id = id;
-		this.dateAffectation = dateAffectation;
-		this.dateDepart = dateDepart;
-		this.employeid = employeid;
-		this.poste = poste;
-	}
 
 }

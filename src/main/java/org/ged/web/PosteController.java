@@ -1,8 +1,9 @@
 package org.ged.web;
 
 import org.ged.bean.PosteBean;
-import org.ged.bean.PosteRoleBean;
+import org.ged.entities.AppRole;
 import org.ged.entities.Poste;
+import org.ged.service.AppRoleService;
 import org.ged.service.PosteService;
 import org.ged.service.StructureService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,73 +19,73 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class PosteController {
-	@Autowired
-	private PosteService posteservice;
-	@Autowired
-	private StructureService structureservice;
+    @Autowired
+    private PosteService posteservice;
+    @Autowired
+    private StructureService structureservice;
+    @Autowired
+    private AppRoleService appRoleService;
 
-	@GetMapping("/postes")
-	public Page<Poste> allposte(@RequestParam(name = "titre", defaultValue = "") String titre,
-			@RequestParam(name = "page", defaultValue = "0") int page,
-			@RequestParam(name = "size", defaultValue = "10") int size) {
-		Page<Poste> postes = null;
-		try {
-			postes = posteservice.allposte(titre, page, size);
-		} catch (Exception e) {
-			e.getMessage();
-		}
+    @GetMapping("/postes")
+    public Page<Poste> allposte(@RequestParam(name = "titre", defaultValue = "") String titre,
+                                @RequestParam(name = "page", defaultValue = "0") int page,
+                                @RequestParam(name = "size", defaultValue = "10") int size) {
+        Page<Poste> postes = null;
+        try {
+            postes = posteservice.allposte(titre, page, size);
+        } catch (Exception e) {
+            e.getMessage();
+        }
 
-		return postes;
-	}
+        return postes;
+    }
 
-	@GetMapping("/postes/{id}")
-	public Poste getposte(@PathVariable(name = "id") Long id) {
-		Poste poste = null;
-		try {
-			poste = posteservice.getposte(id);
+    @GetMapping("/postes/{id}")
+    public Poste getposte(@PathVariable(name = "id") Long id) {
+        Poste poste = null;
+        try {
+            poste = posteservice.getposte(id);
 
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-		return poste;
-	}
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+        return poste;
+    }
 
-	@PostMapping("/postes")
-	public void createposte(@RequestBody PosteBean postebean) {
+    @PostMapping("/postes")
+    public void createposte(@RequestBody PosteBean postebean) {
 
-		Poste poste = new Poste();
+        Poste poste = new Poste();
 
-		poste.setTitre(postebean.getTitre());
-		poste.setDescription(postebean.getDescription());
-		poste.setStructure(structureservice.getstructure(postebean.getStructure()));
-		poste.setPosteSuperieur(posteservice.getposte(postebean.getPosteSuperieur()));
+        poste.setTitre(postebean.getTitre());
+        poste.setDescription(postebean.getDescription());
+        poste.setStructure(structureservice.getstructure(postebean.getStructure()));
+        poste.setPosteSuperieur(posteservice.getposte(postebean.getPosteSuperieur()));
+        for (String role : postebean.getRoles()) {
+            poste.getRoles().add(appRoleService.getrole(role));
+        }
 
-		posteservice.createeposte(poste);
 
-	}
+        posteservice.createeposte(poste);
 
-	@PutMapping("/postes")
-	public void updateposte(@RequestBody PosteBean postebean) {
+    }
 
-		Poste poste = new Poste();
+    @PutMapping("/postes")
+    public void updateposte(@RequestBody PosteBean postebean) {
 
-		poste.setId(postebean.getId());
-		poste.setTitre(postebean.getTitre());
-		poste.setDescription(postebean.getDescription());
-		poste.setStructure(structureservice.getstructure(postebean.getStructure()));
-		poste.setPosteSuperieur(posteservice.getposte(postebean.getPosteSuperieur()));
-		posteservice.updateposte(poste);
+        Poste poste = new Poste();
 
-	}
+        poste.setId(postebean.getId());
+        poste.setTitre(postebean.getTitre());
+        poste.setDescription(postebean.getDescription());
+        poste.setStructure(structureservice.getstructure(postebean.getStructure()));
+        poste.setPosteSuperieur(posteservice.getposte(postebean.getPosteSuperieur()));
+        for (String role : postebean.getRoles()) {
+            poste.getRoles().add(appRoleService.getrole(role));
+        }
 
-	@PostMapping("/roleposte")
-	public void addroleposte(@RequestBody PosteRoleBean posterolebean) {
-		posteservice.addroleposte(posterolebean);
-	}
+        posteservice.updateposte(poste);
 
-	@DeleteMapping("/roleposte")
-	public void removeroleposte(@RequestBody PosteRoleBean posterolebean) {
-		posteservice.deleteroleposte(posterolebean);
-	}
+    }
 
 }

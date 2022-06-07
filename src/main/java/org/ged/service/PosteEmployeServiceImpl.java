@@ -3,6 +3,7 @@ package org.ged.service;
 import javax.transaction.Transactional;
 
 import org.ged.dao.EmployeRepository;
+import org.ged.dao.EmployeRepositoryRest;
 import org.ged.dao.PosteEmployeRepository;
 import org.ged.dao.PosteRepository;
 import org.ged.entities.Employe;
@@ -11,78 +12,88 @@ import org.ged.exception.PosteEmployeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Service
 @Transactional
 public class PosteEmployeServiceImpl implements PosteEmployeService {
 
-	@Autowired
-	private PosteEmployeRepository posteemployerepo;
-	@Autowired
-	private EmployeRepository employerepository;
-	@Autowired
-	private PosteRepository posterepository;
+    @Autowired
+    private PosteEmployeRepository posteemployerepo;
+    @Autowired
+    private EmployeRepositoryRest employeRepositoryRest;
+    @Autowired
+    private EmployeRepository employeRepository;
 
-	@Override
-	public Page<PosteEmploye> allposteemploye(int page, int size) {
+    @Override
+    public Page<PosteEmploye> allposteemploye(Date date, int page, int size) {
 
-		return posteemployerepo.findAll(PageRequest.of(page, size));
-	}
+        return posteemployerepo.findByDateAffectationAfter(date, PageRequest.of(page, size, Sort.by("dateAffectation").descending()));
+    }
 
-	@Override
-	public PosteEmploye getposteemploye(long id) {
+    @Override
+    public PosteEmploye getposteemploye(long id) {
 
-		PosteEmploye posteemploye = posteemployerepo.findById(id).orElseThrow(() -> new PosteEmployeException(id));
-		posteemploye.setEmploye(employerepository.findEmployeById(posteemploye.getEmployeid()));
+        PosteEmploye posteemploye = posteemployerepo.findById(id).orElseThrow(() -> new PosteEmployeException(id));
 
-		return posteemploye;
-	}
 
-	@Override
-	public void createposteemploye(PosteEmploye posteemploye) {
+        return posteemploye;
+    }
 
-		try {
-			posteemployerepo.save(posteemploye);
-		} catch (Exception e) {
-			e.getMessage();
-		}
+    @Override
+    public void createposteemploye(PosteEmploye posteemploye) {
 
-	}
+        try {
+            if (employeRepository.findById(posteemploye.getEmploye().getEmployeId()) == null) {
+                Employe e = employeRepositoryRest.findEmployeById(posteemploye.getEmploye().getEmployeId());
+                employeRepository.save(e);
+            }
+            posteemployerepo.save(posteemploye);
+        } catch (Exception e) {
+            e.getMessage();
+        }
 
-	@Override
-	public void updateposteemploye(PosteEmploye posteemploye) {
-		try {
-			posteemployerepo.save(posteemploye);
-		} catch (Exception e) {
-			e.getMessage();
-		}
+    }
 
-	}
+    @Override
+    public void updateposteemploye(PosteEmploye posteemploye) {
+        try {
+            if (employeRepository.findById(posteemploye.getEmploye().getEmployeId()) == null) {
+                Employe e = employeRepositoryRest.findEmployeById(posteemploye.getEmploye().getEmployeId());
+                employeRepository.save(e);
+            }
+            posteemployerepo.save(posteemploye);
+        } catch (Exception e) {
+            e.getMessage();
+        }
 
-	@Override
-	public PosteEmploye findposteforemploye(String poste, String employe) {
+    }
 
-		PosteEmploye posteemploye = null;
+    @Override
+    public List<PosteEmploye> findposteforemploye(String poste, String employe) {
 
-		Employe e = employerepository.findEmployeByName(employe);
-		if (Integer.valueOf(e.getEmployeId()) == null) {
-			e.setEmployeId(0);
+        List<PosteEmploye> posteemploye = null;
 
-			posteemploye = posteemployerepo.findByPosteOrEmployeid(posterepository.findByTitre(poste),
-					e.getEmployeId());
 
-			posteemploye.setEmploye(employerepository.findEmployeById(posteemploye.getEmployeid()));
+        if (employe.equals("")) {
 
-		} else {
+            posteemploye = posteemployerepo.findByPoste(poste);
 
-			posteemploye = posteemployerepo.findByPosteOrEmployeid(posterepository.findByTitre(poste),
-					e.getEmployeId());
-			posteemploye.setEmploye(e);
 
-		}
+        } else if (poste.equals("")) {
+            posteemploye = posteemployerepo.findByEmploye(employe);
 
-		return posteemploye;
-	}
+        } else {
+            posteemploye = null;
+        }
+
+        return posteemploye;
+    }
 
 }

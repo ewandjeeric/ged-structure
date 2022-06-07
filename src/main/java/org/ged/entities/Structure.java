@@ -1,6 +1,8 @@
 package org.ged.entities;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,44 +15,44 @@ import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Structure {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@Column(nullable = false)
-	private String titre;
-	@Column(nullable = false)
-	private String description;
+    @Column(nullable = false)
+    private String titre;
+    @Column(nullable = false)
+    private String description;
 
-	@OneToMany(mappedBy = "structure", fetch = FetchType.EAGER)
-	@JsonIncludeProperties(value = { "id", "titre" })
-	private Collection<Poste> postes;
+    @OneToMany(mappedBy = "structure", fetch = FetchType.LAZY)
+    @JsonIncludeProperties(value = {"id", "titre"})
+    private Set<Poste> postes = new HashSet<>();
 
-	@ManyToOne
-	@JsonIncludeProperties(value = { "id", "titre" })
-	private Structure structureSuperieur;
+    @ManyToOne
+    @JsonIncludeProperties(value = {"id", "titre"})
+    private Structure structureSuperieur;
 
-	@OneToMany(mappedBy = "structureSuperieur")
-	@JsonIncludeProperties(value = { "id", "titre" })
-	private Collection<Structure> sousStructure;
+    @OneToMany(mappedBy = "structureSuperieur", fetch = FetchType.LAZY)
+    @JsonIncludeProperties(value = {"id", "titre"})
+    private Set<Structure> sousStructure = new HashSet<>();
+    @Column(columnDefinition = "boolean default false")
+    private boolean position;
 
-	private boolean etat;
-
-	public Structure(String titre, String description, Structure structureSuperieur) {
-		super();
-		this.titre = titre;
-		this.description = description;
-		this.structureSuperieur = structureSuperieur;
-	}
+    public Structure(String titre, String description, Structure structureSuperieur) {
+        super();
+        this.titre = titre;
+        this.description = description;
+        this.structureSuperieur = structureSuperieur;
+    }
 
 }

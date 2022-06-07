@@ -14,50 +14,50 @@ import org.springframework.stereotype.Service;
 @Transactional
 public class StructureServiceImpl implements StructureService {
 
-	@Autowired
-	private StructureRepository structureRepo;
+    @Autowired
+    private StructureRepository structureRepo;
 
-	@Override
-	public Page<Structure> allstructure(String titre, int page, int size) {
+    @Override
+    public Page<Structure> allstructure(String titre, int page, int size) {
 
-		return structureRepo.findAll(titre, PageRequest.of(page, size));
-	}
+        return structureRepo.findByTitreContaining(titre, PageRequest.of(page, size));
+    }
 
-	@Override
-	public Structure getstructure(long id) throws StructureException {
+    @Override
+    public Structure getstructure(long id) throws StructureException {
 
-		return structureRepo.findById(id).orElseThrow(() -> new StructureException(id));
-	}
+        return structureRepo.findById(id).orElseThrow(() -> new StructureException(id));
+    }
 
-	@Override
-	public void updatestructure(Structure structure) {
-		try {
-			structureRepo.save(structure);
+    @Override
+    public void updatestructure(Structure structure) {
+        try {
+            structureRepo.save(structure);
 
-		} catch (Exception e) {
+        } catch (Exception e) {
 
-			e.getMessage();
-		}
+            e.getMessage();
+        }
 
-	}
+    }
 
-	@Override
-	public void createstructure(Structure structure) {
+    @Override
+    public void createstructure(Structure structure) {
 
-		try {
-			structureRepo.save(structure);
+        try {
+            structureRepo.save(structure);
 
-		} catch (Exception e) {
+        } catch (Exception e) {
 
-			e.getMessage();
-		}
-	}
+            e.getMessage();
+        }
+    }
 
-	@Override
-	public void deletestructure(long id) {
+    @Override
+    public void deletestructure(long id) {
 
-		structureRepo.delete(this.getstructure(id));
+        structureRepo.delete(this.getstructure(id));
 
-	}
+    }
 
 }

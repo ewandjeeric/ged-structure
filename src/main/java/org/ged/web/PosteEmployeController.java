@@ -1,6 +1,7 @@
 package org.ged.web;
 
 import org.ged.bean.PosteEmployeBean;
+import org.ged.entities.Employe;
 import org.ged.entities.PosteEmploye;
 import org.ged.service.PosteEmployeService;
 import org.ged.service.PosteService;
@@ -14,77 +15,98 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
 @RestController
 public class PosteEmployeController {
-	@Autowired
-	private PosteEmployeService posteemployeservice;
-	@Autowired
-	private PosteService posteservice;
+    @Autowired
+    private PosteEmployeService posteemployeservice;
+    @Autowired
+    private PosteService posteservice;
 
-	@GetMapping("/posteemployes")
-	public Page<PosteEmploye> allposteemploye(@RequestParam(name = "page", defaultValue = "0") int page,
-			@RequestParam(name = "size", defaultValue = "10") int size) {
-		Page<PosteEmploye> posteemploye = null;
-		try {
-			posteemploye = posteemployeservice.allposteemploye(page, size);
-		} catch (Exception e) {
-			e.getMessage();
-		}
+    @GetMapping("/posteemployes")
+    public Page<PosteEmploye> allposteemploye(
+            @RequestParam(name = "dateAffectation", defaultValue = "") String dateAffectation,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
+        Page<PosteEmploye> posteemploye = null;
 
-		return posteemploye;
-	}
+        Date date = null;
 
-	@GetMapping("/posteemployes/{id}")
-	public PosteEmploye getposteemploye(@PathVariable(name = "id") Long id) {
-		PosteEmploye posteemploye = null;
-		try {
-			posteemploye = posteemployeservice.getposteemploye(id);
+        try {
+            if (dateAffectation.equals("")) {
+                String sDate1 = "2000-10-05";
+                date = new SimpleDateFormat("yyyy-MM-dd").parse(sDate1);
+            } else {
+                date = new SimpleDateFormat("yyyy-MM-dd").parse(dateAffectation);
+            }
 
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-		return posteemploye;
-	}
+            posteemploye = posteemployeservice.allposteemploye(date, page, size);
 
-	@GetMapping("/posteemploye")
-	public PosteEmploye getposteforemploye(@RequestParam(name = "poste", defaultValue = "") String poste,
-			@RequestParam(name = "employe", defaultValue = "") String employe) {
-		PosteEmploye posteemploye = null;
-		try {
-			posteemploye = posteemployeservice.findposteforemploye(poste, employe);
+        } catch (Exception e) {
+            e.getMessage();
+        }
 
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-		return posteemploye;
-	}
+        return posteemploye;
+    }
 
-	@PostMapping("/posteemploye")
-	public void createposteemploye(@RequestBody PosteEmployeBean posteemployebean) {
+    @GetMapping("/posteemployes/{id}")
+    public PosteEmploye getposteemploye(@PathVariable(name = "id") Long id) {
+        PosteEmploye posteemploye = null;
+        try {
+            posteemploye = posteemployeservice.getposteemploye(id);
 
-		PosteEmploye posteemploye = new PosteEmploye();
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+        return posteemploye;
+    }
 
-		posteemploye.setDateAffectation(posteemployebean.getDateAffectation());
-		posteemploye.setEmployeid(posteemployebean.getEmployeid());
-		posteemploye.setPoste(posteservice.getposte(posteemployebean.getPoste()));
-		posteemploye.setDateDepart(posteemployebean.getDateDepart());
+    @GetMapping("/posteemploye")
+    public List<PosteEmploye> getposteforemploye(@RequestParam(name = "poste", defaultValue = "") String poste,
+                                                 @RequestParam(name = "employe", defaultValue = "") String employe) {
+        List<PosteEmploye> posteemploye = null;
+        try {
+            posteemploye = posteemployeservice.findposteforemploye(poste, employe);
 
-		posteemployeservice.createposteemploye(posteemploye);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+        return posteemploye;
+    }
 
-	}
+    @PostMapping("/posteemployes")
+    public void createposteemploye(@RequestBody PosteEmployeBean posteemployebean) {
 
-	@PutMapping("/posteemploye")
-	public void updateposteemploye(@RequestBody PosteEmployeBean posteemployebean) {
+        PosteEmploye posteemploye = new PosteEmploye();
+        Employe e = new Employe(posteemployebean.getEmployeid());
 
-		PosteEmploye posteemploye = posteemployeservice.getposteemploye(posteemployebean.getId());
+        posteemploye.setDateAffectation(posteemployebean.getDateAffectation());
+        posteemploye.setEmploye(e);
+        posteemploye.setPoste(posteservice.getposte(posteemployebean.getPoste()));
+        posteemploye.setDateDepart(posteemployebean.getDateDepart());
 
-		posteemploye.setDateAffectation(posteemployebean.getDateAffectation());
-		posteemploye.setPoste(posteservice.getposte(posteemployebean.getPoste()));
-		posteemploye.setEmployeid(posteemployebean.getEmployeid());
-		posteemploye.setDateDepart(posteemployebean.getDateDepart());
+        posteemployeservice.createposteemploye(posteemploye);
 
-		posteemployeservice.updateposteemploye(posteemploye);
+    }
 
-	}
+    @PutMapping("/posteemployes")
+    public void updateposteemploye(@RequestBody PosteEmployeBean posteemployebean) {
+
+        PosteEmploye posteemploye = posteemployeservice.getposteemploye(posteemployebean.getId());
+        Employe e = new Employe(posteemployebean.getEmployeid());
+
+        posteemploye.setDateAffectation(posteemployebean.getDateAffectation());
+        posteemploye.setPoste(posteservice.getposte(posteemployebean.getPoste()));
+        posteemploye.setEmploye(e);
+        posteemploye.setDateDepart(posteemployebean.getDateDepart());
+
+        posteemployeservice.updateposteemploye(posteemploye);
+
+    }
 
 }

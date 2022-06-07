@@ -13,43 +13,43 @@ import org.springframework.stereotype.Service;
 @Transactional
 public class AppRoleServiceImpl implements AppRoleService {
 
-	@Autowired
-	private AppRoleRepository approlerepository;
+    @Autowired
+    private AppRoleRepository approlerepository;
 
-	@Override
-	public Page<AppRole> allrole(String role, int page, int size) {
-		return approlerepository.findAll(role, PageRequest.of(page, size));
-	}
+    @Override
+    public Page<AppRole> allrole(String role, int page, int size) {
+        return approlerepository.findByRoleContaining(role, PageRequest.of(page, size));
+    }
 
-	@Override
-	public AppRole getrole(String role) {
-		return approlerepository.findByRole(role);
-	}
+    @Override
+    public AppRole getrole(String role) {
+        return approlerepository.findByRoleEquals(role);
+    }
 
-	@Override
-	public void addrole(AppRole approle) {
-		try {
-			approlerepository.save(approle);
-		} catch (Exception e) {
-			e.getMessage();
-		}
+    @Override
+    public void addrole(AppRole approle) {
+        try {
+            approlerepository.save(approle);
+        } catch (Exception e) {
+            e.getMessage();
+        }
 
-	}
+    }
 
-	@Override
-	public void updaterole(AppRole approle) {
-		try {
-			approlerepository.save(approle);
-		} catch (Exception e) {
-			e.getMessage();
-		}
+    @Override
+    public void updaterole(AppRole approle) {
+        try {
+            approlerepository.save(approle);
+        } catch (Exception e) {
+            e.getMessage();
+        }
 
-	}
+    }
 
-	@Override
-	public void deleterole(String role) {
-		approlerepository.delete(this.getrole(role));
+    @Override
+    public void deleterole(String role) {
+        approlerepository.delete(this.getrole(role));
 
-	}
+    }
 
 }

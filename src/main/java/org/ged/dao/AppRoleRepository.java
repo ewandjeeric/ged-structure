@@ -8,10 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface AppRoleRepository extends JpaRepository<AppRole, Long> {
-	@Query("SELECT r FROM AppRole r WHERE r.role LIKE '%'||:role||'%'")
-	public AppRole findByRole(@Param("role") String role);
 
-	@Query("SELECT r FROM AppRole r WHERE r.role LIKE '%'||:role||'%'")
-	public Page<AppRole> findAll(@Param("role") String role, Pageable pageable);
+    public AppRole findByRoleEquals(String role);
+
+    public Page<AppRole> findByRoleContaining(String role, Pageable pageable);
 
 }
